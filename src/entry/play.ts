@@ -1,5 +1,6 @@
 import fs from "fs/promises"
 import { createInterface } from "readline/promises";
+import { setTimeout } from "timers/promises";
 import { BOARD, CELL_TYPES } from "../const";
 import { getQAction, isDraw, isWin, printBoard, updateEnv } from "../game";
 
@@ -37,22 +38,18 @@ const main = async () => {
     let isFinish = false;
     let isAgentTurn = Math.random() > 0.5;
     let current = [...BOARD];
-    console.log(`${isAgentTurn ? "AI[⚫️]" : "あなた[⚪️]"} の先行です。`);
-    console.log("[GAME START!]");
+    console.log(`${isAgentTurn ? "🤖AI[⚫️]" : "あなた[⚪️]"} の先行です。`);
+    console.log("\n[GAME START!]\n");
     while(!isFinish) {
-        console.log(`[${isAgentTurn ? "AI" : "あなた"}のターン]`)
         printBoard(current);
         if (isAgentTurn) {
+            // それっぽく待機時間を設定しておくと人っぽい
+            console.log("[🤖AI]...");
+            await setTimeout(Math.random() * 2000);
+
             // 探索なしで常に最適な選択肢を選択(ただし１箇所しかない場合はそこを選ぶ)
-            /*
-            const action = current.reduce((count, cell) => {
-                if (cell === "none") {
-                    count++;
-                }
-                return count
-            }, 0) === 1 ? current.indexOf("none") : getQAction(current, q, false);*/
             const action = getQAction(current, q, false);
-            console.log(`[AI] ${action}->⚫️`)
+            console.log(`[🤖AI] ${action}->⚫️`)
             current = updateEnv(current, action, "black");
         } else {            
             // 標準入力からactionを取得
@@ -60,17 +57,15 @@ const main = async () => {
             console.log(`[あなた] ${action}->⚪️`)
             current = updateEnv(current, action, "white");
         }
-        if (isDraw(current)) {
+        if (isWin(current, "black")) {
+            console.log("[GAME]あなたの負けです！[OVER]");
+            break;
+        } else if (isWin(current, "white")) {
+            console.log("[GAME]🎉🎉🎉あなたの勝ちです！🎉🎉🎉[CLEAR]");
+            break;
+        } else if (isDraw(current)) {
             console.log("[GAME]引き分け![OVER]");
             break;
-        } else {
-            if (isWin(current, "black")) {
-                console.log("[GAME]あなたの負けです！[OVER]");
-                break;
-            } else if (isWin(current, "white")) {
-                console.log("[GAME]🎉🎉🎉あなたの勝ちです！🎉🎉🎉[CLEAR]");
-                break;
-            }
         }
         isAgentTurn = !isAgentTurn;
     }

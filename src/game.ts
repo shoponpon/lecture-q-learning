@@ -54,13 +54,13 @@ export const isWin = (env: typeof CELL_TYPES[number][], cellType: typeof CELL_TY
 
 export const getReward = (env: typeof CELL_TYPES[number][]) => {
     // 引き分け
-    if (isDraw(env)) {
-        return 10;
-    }
     if (isWin(env, "black")) {
         return 10
     } else if (isWin(env, "white")) {
         return -10
+    }
+    if (isDraw(env)) {
+        return 10; // MEMO: ここを0にしてみた時の変化について考えてみると面白いかも...？
     }
     return 0;
 }
