@@ -6,3 +6,4 @@ services:
     volumes:
       - ./:/usr/src/
     tty: true
+    working_dir: /usr/src/
